@@ -19,6 +19,7 @@ Todo:
     - add option to re-scan scanned urls
     - add option to re-scan all urls
     - filtering (subnets, domains, etc)
+    - re-print BAD urls at end of results
 
 '''
 from datetime import datetime
@@ -61,7 +62,7 @@ def get_verdict(url_tuple, resp):
     rating_sus = data['data']['attributes']['last_analysis_stats']['suspicious']
     rating_undetected = data['data']['attributes']['last_analysis_stats']['undetected']
     rating_rep = data['data']['attributes']['reputation']
-    if rating_rep < 3 or rating_mal > 3 or rating_sus > 3:
+    if rating_rep < -3 or rating_mal > 3 or rating_sus > 3:
         verdict = 'BAD! harmless: ' + str(rating_harmless) + ', mal: ' + str(rating_mal) + ', sus: ' + str(rating_sus) + ', rep: ' + str(rating_rep)
     elif rating_rep < 0 or rating_mal > 0 or rating_sus > 0:
         # TODO adjust badness levels
@@ -100,6 +101,11 @@ def api_failed(url_tuple, r):
 
     print(Color.bgred + 'ERROR: ' + str(r.status_code) + ' - ' + r.text + Color.end)
 
+
+def api_unauthorized():
+
+    print(Color.red + 'ERROR: no api key stored in env var!' + Color.end)
+    sys.exit(0)
 
 def log_write_new_entry(url_tuple, verdict):
 
@@ -144,6 +150,8 @@ def api_call(url_tuple):
         api_successful(url_tuple, response)
     elif response.status_code == 404:
         api_not_found(url_tuple)
+    elif response.status_code == 401:
+        api_unauthorized()
     else:
         api_failed(url_tuple, response)
 
@@ -222,3 +230,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
