@@ -137,7 +137,7 @@ def api_call(url_tuple):
     }
 
     if proxy_enabled:
-        response = requests.get('https://www.virustotal.com/api/v3/urls/' + url_tuple[0], headers=headers, proxies=proxies)
+        response = requests.get('https://www.virustotal.com/api/v3/urls/' + url_tuple[0], headers=headers, proxies=proxies, verify=False)
     else:
         response = requests.get('https://www.virustotal.com/api/v3/urls/' + url_tuple[0], headers=headers)
     if response.status_code == 200:
